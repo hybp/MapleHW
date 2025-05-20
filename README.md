@@ -40,8 +40,7 @@
 
 ## 서비스 간 통신 및 주요 흐름
 
-![Service Diagram Placeholder](https://via.placeholder.com/800x400.png?text=Service+Architecture+Diagram)
-*(추후 실제 아키텍처 다이어그램 이미지로 교체 권장)*
+![System Architecture Diagram](architecture.png)
 
 1.  **요청 진입**: 클라이언트의 모든 요청은 `gateway-server` (Port 3000)를 통해 시스템에 진입합니다.
 2.  **게이트웨이 처리 및 라우팅**:
