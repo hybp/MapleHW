@@ -20,7 +20,7 @@
 
 이벤트 리워드 시스템은 확장성이 높은 서비스이기 때문에 서비스간 연결 방식을 RabbitMQ을 사용하여 choreography-based 사가 패턴으로 전환하고 Transactional Outbox와 idempotent consumer 패턴으로 정합성을 강화하면 안정적으로 비동기 연결을 구현할 수 있을것 같습니다. 
 
-## 🌟 핵심 철학 및 설계 원칙
+## 🌟 설계
 
 본 플랫폼은 확장성과 유지보수성을 최우선으로 고려하여 마이크로서비스 아키텍처(MSA) 기반으로 설계되었습니다.
 
@@ -28,9 +28,6 @@
     *   `auth-server`: 사용자 인증(JWT 발급), 권한 부여, 사용자 정보 관리 등 인증 및 인가와 관련된 모든 책임을 담당합니다.
     *   `event-server`: 이벤트 생성, 조건 설정, 상태 관리, 리워드 정의, 사용자의 리워드 요청 처리 등 이벤트 사이클 전반을 관리합니다. 향후 조건 검증 및 리워드 지급 로직은 외부 특화 서비스와 연동될 수 있도록 확장성을 고려하여 설계되었습니다.
     *   `gateway-server`: 모든 클라이언트 요청의 단일 진입점(Single Point of Entry) 역할을 하며, 요청 라우팅, 초기 인증 검증, 그리고 각 마이크로서비스로 사용자 식별 정보(예: `x-user-payload`)를 안전하게 전달하는 책임을 가집니다.
-*   **데이터 주권과 분산 관리**: 각 마이크로서비스는 자체적인 데이터베이스(`auth_db`, `event_db`)를 소유하고 관리합니다. 이를 통해 서비스 간 데이터 종속성을 제거하고, 각 서비스의 특성에 맞는 데이터 모델을 유연하게 설계하며, 독립적인 데이터베이스 확장 및 관리를 가능하게 합니다. 이는 초기 설계의 단일 DB 내 논리적 분리 방식에서 MSA 원칙을 더욱 강화하기 위해 변경된 핵심 사항입니다.
-*   **기술 선택의 유연성과 일관성**: TypeScript와 NestJS 프레임워크를 주요 기술 스택으로 선택하여 개발 안정성과 생산성을 극대화했습니다. NestJS의 강력한 모듈 시스템, 의존성 주입(DI), 데코레이터 기반의 직관적인 API 설계는 MSA 환경에서의 복잡성을 관리하는 데 효과적입니다.
-*   **독립적인 배포 및 확장성**: 각 서비스는 개별 Docker 컨테이너로 패키징되어, 서비스 단위의 독립적인 빌드, 배포, 업데이트 및 확장이 가능하도록 설계되었습니다. 이는 특정 기능의 변경이 전체 시스템에 미치는 영향을 최소화하고, 필요에 따라 특정 서비스만 선택적으로 확장할 수 있는 유연성을 제공합니다.
 
 ## 🛠️ 사용 기술
 
@@ -41,7 +38,7 @@
 *   **Containerization**: Docker, Docker Compose
 *   **Package Manager**: npm
 
-## �� 서비스 간 통신 및 주요 흐름
+## 서비스 간 통신 및 주요 흐름
 
 ![Service Diagram Placeholder](https://via.placeholder.com/800x400.png?text=Service+Architecture+Diagram)
 *(추후 실제 아키텍처 다이어그램 이미지로 교체 권장)*
@@ -163,7 +160,7 @@ interface RewardRequest {
 
 </details>
 
-## तीर API 엔드포인트
+## API 엔드포인트
 
 <details>
 <summary>API 엔드포인트 상세 보기 (클릭하여 확장)</summary>
@@ -228,7 +225,7 @@ interface RewardRequest {
 1.  `docker-compose.yml` 파일 내의 `JWT_PRIVATE_KEY` 및 `JWT_PUBLIC_KEY` 환경 변수 값을 실제 생성한 키 내용으로 업데이트합니다.
 2.  프로젝트 루트 디렉토리에서 다음 명령어를 실행합니다:
     ```bash
-    docker-compose up --build -d
+    docker-compose up -d --build
     ```
 2.  서비스 접근 주소:
     *   API Gateway: `http://localhost:3000`
