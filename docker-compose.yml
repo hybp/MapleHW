@@ -1,0 +1,95 @@
+services:
+  gateway:
+    build:
+      context: ./gateway-server
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./gateway-server:/usr/src/app
+      - /usr/src/app/node_modules 
+    depends_on:
+      - auth_server
+      - event_server
+    environment:
+      - NODE_ENV=development
+      - AUTH_SERVICE_URL=http://auth_server:3001
+      - EVENT_SERVICE_URL=http://event_server:3002
+      - JWT_PUBLIC_KEY=-----BEGIN PUBLIC KEY-----\nYOUR_GATEWAY_PUBLIC_KEY_CONTENT_HERE\n-----END PUBLIC KEY-----
+      - JWT_ALGORITHM=RS256
+    networks:
+      - app_network
+
+  auth_server:
+    build:
+      context: ./auth-server
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./auth-server:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      - mongo_auth
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=mongodb://mongo_auth:27017/auth_db
+      - JWT_PRIVATE_KEY=-----BEGIN PRIVATE KEY-----\nYOUR_AUTH_PRIVATE_KEY_CONTENT_HERE\n-----END PRIVATE KEY-----
+      - JWT_PUBLIC_KEY=-----BEGIN PUBLIC KEY-----\nYOUR_AUTH_PUBLIC_KEY_CONTENT_HERE\n-----END PUBLIC KEY-----
+      - JWT_ALGORITHM=RS256
+      - JWT_EXPIRATION=3600s
+      - REFRESH_TOKEN_EXPIRATION_DAYS=7
+    networks:
+      - app_network
+
+  event_server:
+    build:
+      context: ./event-server
+      dockerfile: Dockerfile
+    ports:
+      - "3002:3002"
+    volumes:
+      - ./event-server:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      - mongo_event
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=mongodb://mongo_event:27017/event_db
+      - JWT_PUBLIC_KEY=-----BEGIN PUBLIC KEY-----\nYOUR_EVENT_PUBLIC_KEY_CONTENT_HERE\n-----END PUBLIC KEY-----
+      - JWT_ALGORITHM=RS256
+      - USER_ACTIVITY_SERVICE_URL=http://user_activity_service:4001
+      - REFERRAL_SERVICE_URL=http://referral_service:4002
+      - QUEST_SERVICE_URL=http://quest_service:4003
+      - PAYMENT_SERVICE_URL=http://payment_service:4004
+      - USER_SERVICE_URL=http://user_service:4005
+      - INVENTORY_SERVICE_URL=http://inventory_service:4006
+      - COUPON_SERVICE_URL=http://coupon_service:4007
+    networks:
+      - app_network
+
+  mongo_auth:
+    image: mongo:latest
+    ports:
+      - "27018:27017" 
+    volumes:
+      - mongo_auth_data:/data/db
+    networks:
+      - app_network
+
+  mongo_event:
+    image: mongo:latest
+    ports:
+      - "27019:27017" 
+    volumes:
+      - mongo_event_data:/data/db
+    networks:
+      - app_network
+
+volumes:
+  mongo_auth_data:
+  mongo_event_data:
+
+networks:
+  app_network:
+    driver: bridge 

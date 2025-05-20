@@ -1,0 +1,18 @@
+{
+  "name": "maple",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "shared-lib",
+    "auth-server",
+    "event-server",
+    "gateway-server"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces",
+    "start": "docker-compose up",
+    "start:dev": "docker-compose up --build"
+  }
+} 
+ 
